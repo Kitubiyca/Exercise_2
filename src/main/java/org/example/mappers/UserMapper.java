@@ -7,19 +7,31 @@ import org.example.entities.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
+import java.sql.SQLException;
+
 /**
  * Mapper для пользователей.
  * */
 
 @Mapper
-public interface UserMapper {
+public abstract class UserMapper {
 
-    UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
+    public static UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
-    User toEntity(UserSignUpDTO dto);
+    public abstract User toEntity(UserSignUpDTO dto);
 
-    User toEntity(UserSignInDTO dto);
+    public abstract User toEntity(UserSignInDTO dto);
 
-    UserInfoDTO toInfoDTO(User user);
+    public UserInfoDTO toInfoDTO(User user){
+        try{
+            UserInfoDTO dto = new UserInfoDTO();
+            dto.setId(user.getId());
+            dto.setName(user.getName());
+            return dto;
+        } catch (SQLException e){
+            throw new RuntimeException("SQL exception: " + e.getMessage());
+        }
+
+    }
 
 }

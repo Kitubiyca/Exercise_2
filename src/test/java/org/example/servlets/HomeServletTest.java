@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import java.sql.SQLException;
+
 import static org.mockito.Mockito.*;
 
 class HomeServletTest {
@@ -36,7 +38,7 @@ class HomeServletTest {
 
     @Test()
     void doPostQuit() throws Exception {
-        User user = new User(1, "oldUser", "0000");
+        User user = new User(1, "oldUser", "0000", null, null);
         when(session.getAttribute("user")).thenReturn(user);
         when(request.getParameter("method")).thenReturn("quit");
         when(request.getParameter("id")).thenReturn("2");
@@ -46,18 +48,18 @@ class HomeServletTest {
 
     @Test
     void doPostDelete() throws Exception {
-        User user = new User(1, "oldUser", "0000");
+        User user = new User(1, "oldUser", "0000", null, null);
         when(session.getAttribute("user")).thenReturn(user);
         when(request.getParameter("method")).thenReturn("delete");
         when(request.getParameter("id")).thenReturn("1");
         servlet.doPost(request, response);
-        Assertions.assertNull(ChatDAO.getChat(1));
+        Assertions.assertThrows(SQLException.class, () -> ChatDAO.getChat(1), "chat not found");
     }
 
     @Test
     void doPostCreate() throws Exception {
-        User user = new User(1, "oldUser", "0000");
-        when(session.getAttribute("user")).thenReturn(new User(1, "oldUser", "0000"));
+        User user = new User(1, "oldUser", "0000", null, null);
+        when(session.getAttribute("user")).thenReturn(new User(1, "oldUser", "0000", null, null));
         when(request.getParameter("method")).thenReturn("create");
         when(request.getParameter("name")).thenReturn("veryNewChat");
         servlet.doPost(request, response);
@@ -66,7 +68,7 @@ class HomeServletTest {
 
     @Test
     void doGetAuthorized() throws Exception{
-        when(request.getSession().getAttribute("user")).thenReturn(new User(1, "oldUser", "0000"));
+        when(request.getSession().getAttribute("user")).thenReturn(new User(1, "oldUser", "0000", null, null));
         servlet.doGet(request, response);
         verify(request, times(1)).getRequestDispatcher("/WEB-INF/views/home_signed.jsp");
     }

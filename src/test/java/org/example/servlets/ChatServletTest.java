@@ -38,7 +38,7 @@ class ChatServletTest {
 
     @Test()
     void doPostRename() throws Exception {
-        User user = new User(1, "oldUser", "0000");
+        User user = new User(1, "oldUser", "0000", null, null);
         when(session.getAttribute("user")).thenReturn(user);
         when(request.getParameter("method")).thenReturn("rename");
         when(request.getParameter("c")).thenReturn("3");
@@ -49,8 +49,8 @@ class ChatServletTest {
 
     @Test
     void doPostInvite() throws Exception {
-        User user = new User(1, "oldUser", "0000");
-        User anotherUser = new User(3, "anotherUser", "2222");
+        User user = new User(1, "oldUser", "0000", null, null);
+        User anotherUser = new User(3, "anotherUser", "2222", null, null);
         when(session.getAttribute("user")).thenReturn(user);
         when(request.getParameter("method")).thenReturn("invite");
         when(request.getParameter("c")).thenReturn("3");
@@ -61,7 +61,7 @@ class ChatServletTest {
 
     @Test
     void doPostSend() throws Exception {
-        when(session.getAttribute("user")).thenReturn(new User(2, "veryOldUser", "1111"));
+        when(session.getAttribute("user")).thenReturn(new User(2, "veryOldUser", "1111", null, null));
         when(request.getParameter("method")).thenReturn("send");
         when(request.getParameter("c")).thenReturn("3");
         when(request.getParameter("message")).thenReturn("bye");
@@ -71,7 +71,7 @@ class ChatServletTest {
 
     @Test
     void doGetAuthorizedMember() throws Exception{
-        when(request.getSession().getAttribute("user")).thenReturn(new User(2, "veryOldUser", "1111"));
+        when(request.getSession().getAttribute("user")).thenReturn(new User(2, "veryOldUser", "1111", null, null));
         when(request.getParameter("c")).thenReturn("3");
         servlet.doGet(request, response);
         verify(request, times(1)).getRequestDispatcher("/WEB-INF/views/chat.jsp");
@@ -79,7 +79,7 @@ class ChatServletTest {
 
     @Test
     void doGetAuthorizedOwner() throws Exception{
-        when(request.getSession().getAttribute("user")).thenReturn(new User(1, "oldUser", "0000"));
+        when(request.getSession().getAttribute("user")).thenReturn(new User(1, "oldUser", "0000", null, null));
         when(request.getParameter("c")).thenReturn("3");
         servlet.doGet(request, response);
         verify(request, times(1)).getRequestDispatcher("/WEB-INF/views/owner_chat.jsp");
@@ -87,7 +87,7 @@ class ChatServletTest {
 
     @Test
     void doGetNonExistent() throws Exception{
-        when(request.getSession().getAttribute("user")).thenReturn(new User(1, "oldUser", "0000"));
+        when(request.getSession().getAttribute("user")).thenReturn(new User(1, "oldUser", "0000", null, null));
         when(request.getParameter("c")).thenReturn("999");
         servlet.doGet(request, response);
         verify(request, times(0)).getRequestDispatcher("/WEB-INF/views/owner_chat.jsp");

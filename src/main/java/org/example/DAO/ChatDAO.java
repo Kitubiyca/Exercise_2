@@ -2,6 +2,7 @@ package org.example.DAO;
 
 import org.example.DBConfig;
 import org.example.entities.Chat;
+import org.example.entities.Message;
 import org.example.entities.User;
 
 import java.sql.*;
@@ -17,7 +18,7 @@ public class ChatDAO {
      *
      * @param chatId id чата.
      *
-     * @return сущность чата или null.
+     * @return сущность чата.
      * */
     public static Chat getChat(int chatId) throws SQLException {
         try (Connection c = DBConfig.getConnection(); PreparedStatement ps = c.prepareStatement(
@@ -28,10 +29,38 @@ public class ChatDAO {
                 return new Chat(
                         rs.getInt(1),
                         rs.getString(2),
-                        rs.getInt(3)
+                        new User(rs.getInt(3), null, null, null, null),
+                        null,
+                        null
                 );
             }
-            return null;
+            throw new SQLException("chat not found");
+        }
+    }
+
+    /**
+     * Возвращает данные о чате в котором находится сообщение.
+     *
+     * @param message сообщение.
+     *
+     * @return сущность чата.
+     * */
+    public static Chat getMessageChat(Message message) throws SQLException {
+        try (Connection c = DBConfig.getConnection(); PreparedStatement ps = c.prepareStatement(
+                "SELECT * FROM public.chat INNER JOIN public.message on public.chat.id=chat_id" +
+                        " WHERE public.message.id=?")) {
+            ps.setInt(1, message.getId());
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()){
+                return new Chat(
+                        rs.getInt(1),
+                        rs.getString(2),
+                        new User(rs.getInt(3), null, null, null, null),
+                        null,
+                        null
+                );
+            }
+            throw new SQLException("chat not found");
         }
     }
 
@@ -73,7 +102,9 @@ public class ChatDAO {
                 chats.add(new Chat(
                         rs.getInt(1),
                         rs.getString(2),
-                        rs.getInt(3)
+                        new User(rs.getInt(3), null, null, null, null),
+                        null,
+                        null
                 ));
             }
             return chats;
@@ -102,14 +133,14 @@ public class ChatDAO {
         try (Connection c = DBConfig.getConnection(); PreparedStatement ps = c.prepareStatement(
                 "INSERT INTO public.chat (name, owner) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, chat.getName());
-            ps.setInt(2, chat.getOwner());
+            ps.setInt(2, chat.getOwner().getId());
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             if(rs.next()){
                 return rs.getInt(1);
             }
         }
-        return 0;
+        throw new SQLException("insert error");
     }
 
     /**
@@ -121,7 +152,7 @@ public class ChatDAO {
         try (Connection c = DBConfig.getConnection(); PreparedStatement ps = c.prepareStatement(
                 "UPDATE public.chat SET name=?, owner=? WHERE id=?")) {
             ps.setString(1, chat.getName());
-            ps.setInt(2, chat.getOwner());
+            ps.setInt(2, chat.getOwner().getId());
             ps.setInt(3, chat.getId());
             ps.executeUpdate();
         }

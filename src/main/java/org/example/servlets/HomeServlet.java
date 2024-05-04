@@ -64,7 +64,7 @@ public class HomeServlet extends HttpServlet {
                 case "create":
                     if (req.getParameter("name") != null) {
                         try {
-                            int chatId = ChatDAO.create(new Chat(0, req.getParameter("name"), user.getId()));
+                            int chatId = ChatDAO.create(new Chat(0, req.getParameter("name"), new User(user.getId(), null, null, null, null), null, null));
                             if(chatId != 0){
                                 UserChatDAO.joinChat(user, chatId);
                             }

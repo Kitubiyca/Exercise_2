@@ -46,17 +46,17 @@ public class ChatServlet extends HttpServlet {
         if (user != null) {
             try {
                 String method = req.getParameter("method");
-                Chat chat = new Chat(Integer.parseInt(req.getParameter("c")), req.getParameter("name"), ChatDAO.getChat(Integer.parseInt(req.getParameter("c"))).getOwner());
+                Chat chat = new Chat(Integer.parseInt(req.getParameter("c")), req.getParameter("name"), ChatDAO.getChat(Integer.parseInt(req.getParameter("c"))).getOwner(), null, null);
                 if (method == null) return;
                 switch (method) {
                     case "rename":
-                        if (chat.getName() != null && chat.getOwner() == user.getId() && chat.getName().length() <= 20) {
+                        if (chat.getName() != null && chat.getOwner().getId() == user.getId() && chat.getName().length() <= 20) {
                             ChatDAO.update(chat);
                         }
                         break;
                     case "invite":
-                        if (req.getParameter("username") != null && chat.getOwner() == user.getId() && req.getParameter("username").length() <= 20) {
-                            User addUser = new User(UserDAO.getUserIdByName(req.getParameter("username")), req.getParameter("username"), null);
+                        if (req.getParameter("username") != null && chat.getOwner().getId() == user.getId() && req.getParameter("username").length() <= 20) {
+                            User addUser = new User(UserDAO.getUserIdByName(req.getParameter("username")), req.getParameter("username"), null, null, null);
                             UserChatDAO.joinChat(addUser, chat.getId());
                         }
                         break;
@@ -84,11 +84,12 @@ public class ChatServlet extends HttpServlet {
             try {
                 int chatId = Integer.parseInt(req.getParameter("c"));
                 if (UserChatDAO.isUserJoined(user, chatId)) {
-                    ChatDTO chat = ChatMapper.INSTANCE.toDTO(ChatDAO.getChat(chatId));
-                    req.setAttribute("chat", chat);
-                    ArrayList<UserInfoDTO> users = UserChatDAO.getJoinedUsers(chatId).stream().map(UserMapper.INSTANCE::toInfoDTO).collect(Collectors.toCollection(ArrayList::new));
+                    Chat chat = ChatDAO.getChat(chatId);
+                    ChatDTO chatDTO = ChatMapper.INSTANCE.toDTO(chat);
+                    req.setAttribute("chat", chatDTO);
+                    ArrayList<UserInfoDTO> users = chat.getUsers().stream().map(UserMapper.INSTANCE::toInfoDTO).collect(Collectors.toCollection(ArrayList::new));
                     req.setAttribute("users", users);
-                    ArrayList<MessageDTO> messages = MessageDAO.getChatMessages(chatId).stream().map(MessageMapper.INSTANCE::toDTO).collect(Collectors.toCollection(ArrayList::new));
+                    ArrayList<MessageDTO> messages = chat.getMessages().stream().map(MessageMapper.INSTANCE::toDTO).collect(Collectors.toCollection(ArrayList::new));
                     Collections.reverse(messages);
                     req.setAttribute("messages", messages);
                     if (ChatDAO.isUserOwner(user, chatId)) {

@@ -5,9 +5,7 @@ import org.example.entities.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 /**
  * Класс для взаимодействия со связью пользователей и чатов в БД.
@@ -61,32 +59,6 @@ public class UserChatDAO {
             ps.setInt(1, user.getId());
             ps.setInt(2, chatId);
             return ps.executeQuery().next();
-        }
-    }
-
-    /**
-     * Возвращает всех состоящих в чате пользователей.
-     *
-     * @param chatId id чата.
-     *
-     * @return список пользователей.
-     * */
-    public static ArrayList<User> getJoinedUsers(int chatId) throws SQLException {
-        try (Connection c = DBConfig.getConnection(); PreparedStatement ps = c.prepareStatement(
-                "SELECT id, name FROM public.user\n" +
-                        "\tINNER JOIN public.user_chat on id=user_id\n" +
-                        "\tWHERE chat_id=?")) {
-            ps.setInt(1, chatId);
-            ResultSet rs = ps.executeQuery();
-            ArrayList<User> users = new ArrayList<>();
-            while(rs.next()){
-                users.add(new User(
-                        rs.getInt(1),
-                        rs.getString(2),
-                        null
-                ));
-            }
-            return users;
         }
     }
 

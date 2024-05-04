@@ -30,7 +30,7 @@ public class SignUpServlet extends HttpServlet {
      * */
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try{
             UserSignUpDTO dto = new UserSignUpDTO(req.getParameter("name"), req.getParameter("password1"), req.getParameter("password2"));
             User user = UserMapper.INSTANCE.toEntity(dto);

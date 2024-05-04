@@ -5,15 +5,28 @@ import org.example.entities.Chat;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
+import java.sql.SQLException;
+
 /**
  * Mapper для чатов.
  * */
 
 @Mapper
-public interface ChatMapper {
+public abstract class ChatMapper {
 
-    ChatMapper INSTANCE = Mappers.getMapper(ChatMapper.class);
+    public static ChatMapper INSTANCE = Mappers.getMapper(ChatMapper.class);
 
-    ChatDTO toDTO(Chat entity);
+    public ChatDTO toDTO(Chat entity) throws RuntimeException {
+        try{
+            ChatDTO dto = new ChatDTO();
+            dto.setId(entity.getId());
+            dto.setName(entity.getName());
+            dto.setOwner(entity.getOwner().getId());
+            return dto;
+        } catch (SQLException e){
+            throw new RuntimeException("SQL exception: " + e.getMessage());
+        }
+
+    }
 
 }
